@@ -2,7 +2,7 @@ from django.db import models
 
 class Deck(models.Model):
     name = models.CharField(max_length = 200)
-    desciption = models.CharField(max_length = 400)
+    description = models.CharField(max_length = 400)
 
 class Card(models.Model):
     question = models.CharField(max_length = 200)

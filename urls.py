@@ -19,5 +19,6 @@ from vocabDecks import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/cards', views.cards)
+    path('api/cards', views.cards),
+    path('api/decks', views.decks)
 ]
