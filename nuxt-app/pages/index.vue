@@ -1,8 +1,10 @@
 <template>
   <v-container>
-    {{ ddd }}
-    <v-row justify="center">
-      <v-col v-for="deck in decks" :key="deck.name" cols="4">
+    <v-row v-if="pending" justify="center">
+      <v-progress-circular indeterminate size="50" color="blue" />
+    </v-row>
+    <v-row v-else justify="center">
+      <v-col v-for="deck in decks" :key="deck.id" cols="4">
         <NuxtLink
           :to="`/deck/${deck.id}`"
           style="text-decoration: none; color: inherit"
@@ -22,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 
 interface Deck {
   id: number;
@@ -30,9 +32,7 @@ interface Deck {
   description: string;
 }
 
-const { data: ddd } = await useFetch("http://localhost:8000/api/decks");
-
-console.log(ddd._rawValue.decks);
-const result: Deck[] = ddd._rawValue.decks;
-const decks = ref<Deck[]>(result);
+const { pending, data: decks } = useLazyFetch(
+  "http://localhost:8000/api/decks"
+);
 </script>

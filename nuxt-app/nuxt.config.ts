@@ -12,6 +12,7 @@ export default defineNuxtConfig({
       "process.env.DEBUG": false,
     },
   },
+  ssr: false,
   css: ["mdi/css/materialdesignicons.min.css", "vuetify/lib/styles/main.sass"],
   build: {
     transpile: ["vuetify"],
