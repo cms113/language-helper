@@ -7,4 +7,5 @@ class Deck(models.Model):
 class Card(models.Model):
     question = models.CharField(max_length = 200)
     translation = models.CharField(max_length = 200)
-    cards = models.ForeignKey(Deck, on_delete=models.CASCADE)
+    deckId = models.ForeignKey(Deck, on_delete=models.CASCADE)
+    imageURL = models.CharField(max_length = 20482, default = "")

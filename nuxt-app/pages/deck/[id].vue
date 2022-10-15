@@ -1,6 +1,9 @@
 <template>
   <v-container>
-    <v-row align="center" justify="center">
+    <v-row v-if="pending" justify="center">
+      <v-progress-circular indeterminate size="50" color="blue" />
+    </v-row>
+    <v-row v-else align="center" justify="center">
       <v-col cols="auto">
         <v-card width="400px" rounded="lg" color="#1F7087" theme="dark">
           <v-card-title class="text-center text-h4 my-2">
@@ -13,7 +16,7 @@
             :src="currentCard.imageURL"
           />
           <v-card-text>
-            <v-form ref="form" lazy-validation v-model="options.valid">
+            <v-form ref="form" lazy-validation v-model="valid">
               <v-text-field
                 theme="default"
                 placeholder="Answer here!"
@@ -45,9 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from "vue";
+import { reactive, computed, ref } from "vue";
 const { $unsplash } = useNuxtApp();
 const form = ref(null);
+const route = useRoute();
+const id = route.params.id;
+
+const { pending, data: cards } = useLazyFetch(
+  `http://localhost:8000/api/deck/${id}`
+);
 
 interface QuestionAnswer {
   question: string;
@@ -56,29 +65,27 @@ interface QuestionAnswer {
   imageURL: string;
 }
 
-interface State {
-  index: number;
-  valid: boolean;
-  cards: QuestionAnswer[];
-}
+const index = ref(0);
+const valid = ref(false);
 
-var options = reactive<State>({
-  index: 0,
-  valid: false,
-  cards: [
-    { question: "The tree", answer: "L'albero", response: "", imageURL: "" },
-    { question: "The cat", answer: "Il gatto", response: "", imageURL: "" },
-    { question: "The dog", answer: "Il cane", response: "", imageURL: "" },
-  ],
+const currentCard = computed(() => {
+  if (pending.value === true) {
+    return null;
+  }
+  return cards.value[index.value];
 });
 
-const currentCard = computed(() => options.cards[options.index]);
+watch(currentCard, async (newVal) => {
+  console.log(newVal);
+  if (currentCard.value?.imageURL === "") {
+    currentCard.value.imageURL = await getImage();
+  }
+});
 
 function checkAnswer() {
   form.value.validate();
-  if (options.valid) {
-    options.index++;
-    getImage();
+  if (valid.value) {
+    index.value++;
   }
 }
 
@@ -86,14 +93,11 @@ async function getImage() {
   try {
     var keyword = currentCard.value.question;
     var photos = await $unsplash.search.getPhotos({ query: keyword });
-    var firstPhoto = photos.response.results[0].urls.full;
-    currentCard.value.imageURL = firstPhoto;
+    return photos.response.results[0].urls.full;
   } catch (err) {
     console.log(err);
   }
 }
-
-onMounted(getImage);
 </script>
 
 <style scoped></style>
