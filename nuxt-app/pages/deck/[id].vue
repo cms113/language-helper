@@ -5,7 +5,13 @@
     </v-row>
     <v-row v-else align="center" justify="center">
       <v-col cols="auto">
-        <v-card width="400px" rounded="lg" color="#1F7087" theme="dark">
+        <v-card
+          width="400px"
+          rounded="lg"
+          color="#1F7087"
+          theme="dark"
+          id="card"
+        >
           <v-card-title class="text-center text-h4 my-2">
             {{ currentCard.question }}
           </v-card-title>
@@ -50,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from "vue";
+import { computed, ref, nextTick } from "vue";
 const { $unsplash } = useNuxtApp();
 const form = ref(null);
 const route = useRoute();
@@ -77,12 +83,26 @@ watch(currentCard, async (newVal) => {
   }
 });
 
+function nextCard() {
+  const card = document.getElementById("card");
+  card.classList.add("fade-out");
+  setTimeout(addNextCard, 1000);
+}
+
+function addNextCard() {
+  index.value++;
+  nextTick(() => {
+    const card = document.getElementById("card");
+    card.classList.remove("fade-out");
+  });
+}
+
 function checkAnswer() {
   var valid = form.value.validate();
   if (valid) {
     currentCard.value.dateAnsweredCorrectly = new Date();
     saveCardStatus(index.value);
-    index.value++;
+    nextCard();
   }
 }
 
@@ -111,4 +131,41 @@ async function saveCardStatus(index) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-out {
+  animation: fade 1s;
+  -moz-animation: fade 1s; /* Firefox */
+  -webkit-animation: fade 1s; /* Safari and Chrome */
+}
+
+@keyframes fade {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(50px, 50px);
+  }
+}
+@-moz-keyframes fade {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(50px, 50px);
+  }
+}
+@-webkit-keyframes fade {
+  from {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(50px, 50px);
+  }
+}
+</style>
