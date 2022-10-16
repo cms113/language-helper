@@ -71,16 +71,17 @@ const currentCard = computed(() => {
 });
 
 watch(currentCard, async (newVal) => {
-  console.log(newVal);
   if (currentCard.value?.imageURL === "") {
     currentCard.value.imageURL = await getImage();
-    await saveImageURL();
+    await saveCardStatus(index.value);
   }
 });
 
 function checkAnswer() {
   var valid = form.value.validate();
   if (valid) {
+    currentCard.value.dateAnsweredCorrectly = new Date();
+    saveCardStatus(index.value);
     index.value++;
   }
 }
@@ -95,14 +96,13 @@ async function getImage() {
   }
 }
 
-async function saveImageURL() {
+async function saveCardStatus(index) {
+  var cardToSave = cards.value[index];
   try {
-    var id = currentCard.value.id;
-    var url = currentCard.value.imageURL;
-    await $fetch(`http://localhost:8000/api/card/${id}`, {
-      method: "POST",
+    await $fetch(`http://localhost:8000/api/card`, {
+      method: "PATCH",
       body: {
-        imageURL: url,
+        card: cardToSave,
       },
     });
   } catch (err) {

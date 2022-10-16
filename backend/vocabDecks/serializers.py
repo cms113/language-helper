@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from vocabDecks.models import Card, Deck
 
-class Customserializer(serializers.ModelSerializer):
+class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
         fields = '__all__'
