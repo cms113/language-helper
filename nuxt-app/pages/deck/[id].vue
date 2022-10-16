@@ -79,6 +79,7 @@ watch(currentCard, async (newVal) => {
   console.log(newVal);
   if (currentCard.value?.imageURL === "") {
     currentCard.value.imageURL = await getImage();
+    await saveImageURL(id, currentCard.value.imageURL);
   }
 });
 
@@ -94,6 +95,19 @@ async function getImage() {
     var keyword = currentCard.value.question;
     var photos = await $unsplash.search.getPhotos({ query: keyword });
     return photos.response.results[0].urls.full;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function saveImageURL(id, url) {
+  try {
+    await $fetch(`http://localhost:8000/api/card/${id}`, {
+      method: "POST",
+      body: {
+        imageURL: url,
+      },
+    });
   } catch (err) {
     console.log(err);
   }
