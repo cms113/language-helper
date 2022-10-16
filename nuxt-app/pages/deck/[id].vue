@@ -18,11 +18,13 @@
           <v-card-text>
             <v-form ref="form" lazy-validation v-model="valid">
               <v-text-field
+                v-model="currentCard.response"
                 theme="default"
                 placeholder="Answer here!"
-                v-model="currentCard.response"
                 :rules="[
-                  (v) => v.toLowerCase() === currentCard.answer || 'Not quite!',
+                  (v) =>
+                    v.toLowerCase() === currentCard.translation.toLowerCase() ||
+                    'Not quite!',
                 ]"
                 @input="form.resetValidation()"
               />
@@ -58,13 +60,6 @@ const { pending, data: cards } = useLazyFetch(
   `http://localhost:8000/api/deck/${id}`
 );
 
-interface QuestionAnswer {
-  question: string;
-  response: string;
-  answer: string;
-  imageURL: string;
-}
-
 const index = ref(0);
 const valid = ref(false);
 
@@ -79,13 +74,13 @@ watch(currentCard, async (newVal) => {
   console.log(newVal);
   if (currentCard.value?.imageURL === "") {
     currentCard.value.imageURL = await getImage();
-    await saveImageURL(id, currentCard.value.imageURL);
+    await saveImageURL();
   }
 });
 
 function checkAnswer() {
-  form.value.validate();
-  if (valid.value) {
+  var valid = form.value.validate();
+  if (valid) {
     index.value++;
   }
 }
@@ -100,8 +95,10 @@ async function getImage() {
   }
 }
 
-async function saveImageURL(id, url) {
+async function saveImageURL() {
   try {
+    var id = currentCard.value.id;
+    var url = currentCard.value.imageURL;
     await $fetch(`http://localhost:8000/api/card/${id}`, {
       method: "POST",
       body: {
