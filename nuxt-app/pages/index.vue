@@ -20,6 +20,13 @@
         </NuxtLink>
       </v-col>
     </v-row>
+    <v-row justify="center">
+      <v-col cols="auto">
+        <v-btn color="primary" fab @click="createDeck" size="50px" rounded>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -35,4 +42,17 @@ interface Deck {
 const { pending, data: decks } = useLazyFetch(
   "http://localhost:8000/api/decks"
 );
+
+const createDeck = async () => {
+  try {
+    await $fetch(`http://localhost:8000/api/deck`, {
+      method: "POST",
+      body: {
+        name: "New Deck",
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 </script>

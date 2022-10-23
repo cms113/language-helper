@@ -63,7 +63,7 @@ const route = useRoute();
 const id = route.params.id;
 
 const { pending, data: cards } = useLazyFetch(
-  `http://localhost:8000/api/deck/${id}`
+  `http://localhost:8000/api/cards/${id}`
 );
 
 const index = ref(0);
